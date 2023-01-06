@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
     user: process.env.USERNAME,
     password: process.env.PASSWORD,
     database: process.env.DATABASE,
-    port: process.env.DB_PORT,
+    port: process.env.DB_PORT
     // socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock'
 });
 
@@ -16,7 +16,7 @@ connection.connect((err) => {
     if(err) {
         console.log(err.message);
     }
-    console.log('db' + connection.state);
+    console.log('db ' + connection.state);
 });
 
 class DbService{
@@ -79,20 +79,37 @@ class DbService{
     }
 
     async updateNameById(id, name) {
-        try{
-            id = parseInt(id, 10);
-            const response = await new Promise((resolve, reject) => {const query = "UPDATE names SET name = ? WHERE id = ?";
-            
-            connection.query(query, [name, id] ,(err, result) => {
-                if (err) reject(new Error(err.message));
-                resolve(result.affectedRows);
+        try {
+            id = parseInt(id, 10); 
+            const response = await new Promise((resolve, reject) => {
+                const query = "UPDATE names SET name = ? WHERE id = ?";
+    
+                connection.query(query, [name, id] , (err, result) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(result.affectedRows);
                 })
             });
-    
             return response === 1 ? true : false;
-        }catch (error) {
-            console.log(error); 
+        } catch (error) {
+            console.log(error);
             return false;
+        }
+    }
+    
+    async searchByName(name) {
+        try {
+            const response = await new Promise((resolve, reject) => {
+                const query = "SELECT * FROM names WHERE name = ?;";
+
+                connection.query(query, [name], (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results);
+                })
+            });
+
+            return response;
+        } catch (error) {
+            console.log(error);
         }
     }
 }
